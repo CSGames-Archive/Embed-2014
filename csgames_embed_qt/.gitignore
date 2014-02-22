@@ -1,0 +1,7 @@
+*.user
+Makefile
+csgames2014
+*.o
+moc_*
+ui_*
+*.moc

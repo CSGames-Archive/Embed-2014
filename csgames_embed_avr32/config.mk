@@ -29,9 +29,12 @@ CSRCS = \
        avr32/drivers/intc/intc.c                          \
        avr32/drivers/tc/tc.c                              \
        avr32/drivers/pm/pm.c                              \
+       avr32/drivers/pwm/pwm.c                              \
        avr32/drivers/pm/pm_conf_clocks.c                  \
        avr32/drivers/pm/power_clocks_lib.c                \
        avr32/drivers/usart/usart.c                        \
+       avr32/drivers/spi/spi.c                        \
+       avr32/components/display/dip204/dip204.c                        \
        avr32/utils/debug/debug.c                          \
        avr32/utils/debug/print_funcs.c                    \
        common/services/clock/uc3a0_a1/sysclk.c            \
@@ -48,6 +51,7 @@ INC_PATH = \
        avr32/boards/evk1100                               \
        avr32/boards/evk1100/board_config                  \
        avr32/components/joystick/skrhabe010               \
+       avr32/components/display/dip204               \
        avr32/drivers/adc                                  \
        avr32/drivers/cpu/cycle_counter                    \
        avr32/drivers/flashc                               \
@@ -56,6 +60,8 @@ INC_PATH = \
        avr32/drivers/tc                                   \
        avr32/drivers/pm                                   \
        avr32/drivers/usart                                \
+       avr32/drivers/spi                                \
+       avr32/drivers/pwm                                \
        avr32/utils                                        \
        avr32/utils/debug                                  \
        avr32/utils/preprocessor                           \

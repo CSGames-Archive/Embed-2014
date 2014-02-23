@@ -328,7 +328,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="buttonRX">
             <property name="text">
              <string>Enable RX (avr32 -&gt; PC)</string>
             </property>
@@ -338,7 +338,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_3">
+           <widget class="QPushButton" name="buttonTX">
             <property name="text">
              <string>Enable TX (PC -&gt; avr32)</string>
             </property>

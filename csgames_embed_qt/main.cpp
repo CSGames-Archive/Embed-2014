@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
                 qDebug() << "ERROR: cant connect to " << info.portName();
                 exit(1);
             }
+            w.serial.setBaudRate(QSerialPort::Baud57600);
         }
     }
     if (!found) {

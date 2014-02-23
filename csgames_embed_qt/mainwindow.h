@@ -19,10 +19,13 @@ public:
     
 private:
     Ui::MainWindow *ui;
+    bool rxenabled;
+    bool txenabled;
 
 public slots:
     void toggleRX();
     void toggleTX();
+    void readData();
 };
 
 #endif // MAINWINDOW_H

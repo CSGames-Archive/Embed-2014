@@ -23,9 +23,11 @@ private:
     bool txenabled;
 
 public slots:
+    void readData();
     void toggleRX();
     void toggleTX();
-    void readData();
+    void textChanged();
+    void ledIntensityChanged();
 };
 
 #endif // MAINWINDOW_H

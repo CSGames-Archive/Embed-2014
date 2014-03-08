@@ -85,8 +85,6 @@ void setup() {
 	dip204_write_string("CS GAMES 2014");
 	dip204_set_cursor_position(0, 2);
 	dip204_write_string("EMBEDDED PROGRAMMING");
-	//dip204_set_cursor_position(6, 3);
-	//dip204_write_string("AVR32 UC3");
 	dip204_set_cursor_position(0, 4);
 	dip204_write_string("TEXT:");
 	dip204_hide_cursor();
@@ -116,16 +114,16 @@ void loop() {
 			uint32_t pot_value = 0;
 
 			/* enable channel for sensor */
-			adc_enable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
+			adc_enable(&AVR32_ADC, ADC_LIGHT_CHANNEL);
 			/* start conversion */
 			adc_start(&AVR32_ADC);
 			/* get value for sensor */
-			pot_value = adc_get_value(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL)
+			pot_value = adc_get_value(&AVR32_ADC, ADC_LIGHT_CHANNEL)
 					* 255 / ADC_MAX_VALUE;
 			/* Disable channel for sensor */
-			adc_disable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
+			adc_disable(&AVR32_ADC, ADC_LIGHT_CHANNEL);
 
-			print_dbg("pot:");
+			print_dbg("light:");
 			print_dbg_ulong(pot_value);
 
 			LED_Set_Intensity(LED4, pot_value);
@@ -163,12 +161,16 @@ void loop() {
 
 		// handle received char from console queue
 		int rx_char;
-		int status = usart_read_char(DBG_USART, &rx_char);
-		if (USART_SUCCESS == status) {
+		int status;
+		while (USART_SUCCESS == (status = usart_read_char(DBG_USART, &rx_char))) {
 			LED_Toggle(LED6);
 			print_dbg_char(rx_char); // echo back
+			static uint8_t pos = 6;
 
-			dip204_set_cursor_position(5, 4);
+			dip204_set_cursor_position(pos++, 4);
+			if (pos > 20) {
+				pos = 6;
+			}
 			dip204_write_data(rx_char);
 		}
 

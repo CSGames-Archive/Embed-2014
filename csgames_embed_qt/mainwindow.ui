@@ -369,22 +369,5 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections>
-  <connection>
-   <sender>textValue</sender>
-   <signal>returnPressed()</signal>
-   <receiver>textSet</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>356</x>
-     <y>213</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>641</x>
-     <y>211</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

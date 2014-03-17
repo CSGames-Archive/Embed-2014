@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QString portName("ttyUSB0");
     bool found = false;
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-        qDebug() << "Name        : " << info.portName();
+        //qDebug() << "Name        : " << info.portName();
         if (info.portName().startsWith(portName)) {
             found = 1;
             w.serial.setPort(info);
@@ -27,8 +27,23 @@ int main(int argc, char *argv[])
         }
     }
     if (!found) {
-        qDebug() << "ERROR: cant find port " << portName;
-        exit(1);
+        portName = "ttyS0";
+        foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+            //qDebug() << "Name        : " << info.portName();
+            if (info.portName().startsWith(portName)) {
+                found = 1;
+                w.serial.setPort(info);
+                if (!w.serial.open(QIODevice::ReadWrite)) {
+                    qDebug() << "ERROR: cant connect to " << info.portName();
+                   // exit(1);
+                }
+                w.serial.setBaudRate(QSerialPort::Baud57600);
+            }
+        }
+        if (!found) {
+            qDebug() << "ERROR: cant find port " << portName;
+          //  exit(1);
+        }
     }
 
     w.show();

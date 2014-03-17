@@ -22,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->textValue, SIGNAL(returnPressed()), this, SLOT(textChanged()));
     QObject::connect(ui->greenValue, SIGNAL(valueChanged(int)), this, SLOT(ledIntensityChanged()));
     QObject::connect(ui->redValue, SIGNAL(valueChanged(int)), this, SLOT(ledIntensityChanged()));
-    QObject::connect(ui->greenValue, SIGNAL(sliderMoved(int)), this, SLOT(ledIntensityChanged()));
-    QObject::connect(ui->redValue, SIGNAL(sliderMoved(int)), this, SLOT(ledIntensityChanged()));
+//    QObject::connect(ui->greenValue, SIGNAL(sliderMoved(int)), this, SLOT(ledIntensityChanged()));
+//    QObject::connect(ui->redValue, SIGNAL(sliderMoved(int)), this, SLOT(ledIntensityChanged()));
 
     ui->greenValue->setMinimum(0);
     ui->greenValue->setMaximum(100);
@@ -32,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->buttonRX->click();
     ui->buttonTX->click();
+
+    QTimer *timer = new QTimer(this);
+    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerTick()));
+    timer->start(1000);
 }
 
 MainWindow::~MainWindow()
@@ -80,7 +84,7 @@ void MainWindow::textChanged()
         for (int i = 0; i < len; i++) {
             serial.write(data+i, 1);
             serial.flush();
-            usleep(1000); // 1 ms
+            usleep(2000); // 2 ms
         }
     }
 }
@@ -90,4 +94,20 @@ void MainWindow::ledIntensityChanged()
     int red = ui->redValue->value();
     int green = ui->greenValue->value();
     qDebug() << "LED red " << red << " green " << green;
+}
+
+void MainWindow::timerTick()
+{
+    qDebug() << "Tick !";
+    if (!serial.isOpen())
+        return;
+
+    QString text = "tick";
+    const char * data = text.toStdString().c_str();
+    int len = text.size();
+    for (int i = 0; i < len; i++) {
+        serial.write(data+i, 1);
+        serial.flush();
+        usleep(2000); // 2 ms
+    }
 }

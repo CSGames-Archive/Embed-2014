@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtSerialPort/qserialport.h>
+#include <QtCore/QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +29,7 @@ public slots:
     void toggleTX();
     void textChanged();
     void ledIntensityChanged();
+    void timerTick();
 };
 
 #endif // MAINWINDOW_H

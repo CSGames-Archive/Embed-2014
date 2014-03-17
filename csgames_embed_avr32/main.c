@@ -111,6 +111,8 @@ void loop() {
 		if ((now - task2_last_run_ms) > task2_period) {
 			task2_last_run_ms = (now / task2_period) * task2_period;
 
+			//////////////////////////////////////
+
 			uint32_t pot_value = 0;
 
 			/* enable channel for sensor */
@@ -123,11 +125,25 @@ void loop() {
 			/* Disable channel for sensor */
 			adc_disable(&AVR32_ADC, ADC_LIGHT_CHANNEL);
 
-			print_dbg("light:");
+			print_dbg("pot:");
 			print_dbg_ulong(pot_value);
 
-			LED_Set_Intensity(LED4, pot_value);
-			LED_Set_Intensity(LED5, 255 - pot_value);
+			//////////////////////////////////////
+
+			uint32_t light_value = 0;
+
+			/* enable channel for sensor */
+			adc_enable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
+			/* start conversion */
+			adc_start(&AVR32_ADC);
+			/* get value for sensor */
+			pot_value = adc_get_value(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL)
+					* 255 / ADC_MAX_VALUE;
+			/* Disable channel for sensor */
+			adc_disable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
+
+			print_dbg("light:");
+			print_dbg_ulong(light_value);
 
 			//////////////////////////////////////
 

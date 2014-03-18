@@ -1,9 +1,11 @@
-CSGames 2014 - Embedded programming competition
+CSGames 2014
+=====================================
+Embedded programming competition
 =====================================
 
 Synopsis
 -------------
-Welcome to CS Games 2014 edition of the embedded programming competition. This year the competition wont be so much about embed centric programmation but more about integration with other system like a computer. 
+Welcome to the CS Games 2014 edition of the embedded programming competition. This year the competition wont be so much about embed centric programmation but more about integration with other system like a computer. 
 
 To do so, protocols are designed and used to allow communication between systems. The problem is: the communication channels are not always reliable and some corruption can happen from time to time in an unpredictable manner.
 
@@ -34,8 +36,8 @@ Information to exchange over serial
 ###Board input to report to the computer
 
 - 3 momentary push buttons
-- 1 temperature sensor
-- 1 potentiometer
+- light sensor
+- potentiometer
 
 ###Board output to control from the computer
 
@@ -48,7 +50,7 @@ Quick start
 
 ###Flash procedure
 
-To put the EVK1100 board in programming mode, __hold the joystick center button and press reset__
+To put the EVK1100 board in programming mode, __hold the joystick center button and press the reset button__
 
 Then
 
@@ -64,6 +66,46 @@ A Qt project has been setup for linux Qt development with serial port support. O
 Correction
 ----------------
 
-TBD
+To evaluate competitor's submission, the submitted code will be compiled on the evaluator's workstation and flashed to a freshly formatted board.
+
+If the submitted code does not compile, a note of 0 is given.
+
+At most, a reset will be attempted on the board if anything fails while correcting.
+
+There are two milestone. The first one must be fully completed before the points from milestone 2 counts.
+
+### Milestone 1 (19 pts + 1 pts)
+
+Milestone 1 will be corrected by manually evaluating that every feature works
+
+#### PC -> Embed communication
+
+- control LEDs ... (2pt/LED) 4 pts
+- send text to display ... 6 pts
+
+#### Embed -> PC communication
+
+- report button status ... (1pt/button) 3 pts
+- potentionmeter value ... 3 pts
+- light sensor value ... 3 pts
+- bonus points if full analog sensor value is transmitted (10 bits) ... + 1 pts
+
+### Milestone 2 (30 pts)
+
+Milestone 2 will be evaluated based on the documentation and a test device that introduce corruption in the stream (if you implemented that feature). 
+
+This milestone __will NOT be corrected if no documentation if provided__
+
+- documentation of feature and protocol design ... 8 pts
+- protocol transmission efficienty ... 4 pts
+- protocol robustness to error ... 18 pts
+  - ie: bit flip, duplicated bytes, missing bytes, communication interruption
+
+
+
+
+
+
+
 
 

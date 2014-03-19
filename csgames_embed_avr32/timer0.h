@@ -1,7 +1,5 @@
 /*! Timer0
-
  Timer qui sert de base de temps au systeme a l'aide de get_us_time()
-
  Timer overflows at 1ms + time from counter directly (1 tick = 0.5us)
  */
 

@@ -1,4 +1,5 @@
 #include "timer0.h"
+#include "uartrx.h"
 
 #include <compiler.h>
 
@@ -21,7 +22,6 @@
 void loop(void);
 void setup(void);
 
-#  define EXAMPLE_TARGET_PBACLK_FREQ_HZ FOSC0  // PBA clock target frequency, in Hz
 void setup() {
 
 	static const gpio_map_t DIP204_SPI_GPIO_MAP = { { DIP204_SPI_SCK_PIN,
@@ -67,7 +67,7 @@ void setup() {
 	// setup chip registers
 	spi_setupChipReg(DIP204_SPI, &spiOptions, FOSC0);
 
-	init_dbg_rs232_ex(DBG_USART_BAUDRATE, FOSC0);
+	uart_init();
 
 	///////////////////////////////////
 	// Setup clock
@@ -89,6 +89,13 @@ void setup() {
 	dip204_write_string("TEXT:");
 	dip204_hide_cursor();
 
+	adc_configure(&AVR32_ADC);
+	adc_enable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
+	adc_enable(&AVR32_ADC, ADC_LIGHT_CHANNEL);
+	gpio_enable_pin_glitch_filter(GPIO_PUSH_BUTTON_0);
+	gpio_enable_pin_glitch_filter(GPIO_PUSH_BUTTON_1);
+	gpio_enable_pin_glitch_filter(GPIO_PUSH_BUTTON_2);
+
 	print_dbg("Booted up\r\n");
 }
 
@@ -98,104 +105,85 @@ static const uint32_t task2_period = 100;
 static volatile uint32_t task2_last_run_ms = 0;
 
 void loop() {
-	while (1) {
-		uint32_t now = timer0_get_ms_time();
+	uint32_t now = timer0_get_ms_time();
 
-		if ((now - task1_last_run_ms) > task1_period) {
-			task1_last_run_ms = (now / task1_period) * task1_period;
+	// handle received char from console queue
+	char rx_char;
+	while (uart_get(&rx_char) != UART_NO_DATA) {
+		//////////////////////////////////
+		// handle received char here
 
-			LED_Toggle(LED0);
-			print_dbg("pop\r\n");
+		LED_Toggle(LED6);
+		print_dbg_char(rx_char); // echo back
+		static uint8_t pos = 6;
+		dip204_set_cursor_position(pos++, 4);
+		if (pos > 20) {
+			pos = 6;
 		}
+		dip204_write_data(rx_char);
 
-		if ((now - task2_last_run_ms) > task2_period) {
-			task2_last_run_ms = (now / task2_period) * task2_period;
-
-			//////////////////////////////////////
-
-			uint32_t pot_value = 0;
-
-			/* enable channel for sensor */
-			adc_enable(&AVR32_ADC, ADC_LIGHT_CHANNEL);
-			/* start conversion */
-			adc_start(&AVR32_ADC);
-			/* get value for sensor */
-			pot_value = adc_get_value(&AVR32_ADC, ADC_LIGHT_CHANNEL)
-					* 255 / ADC_MAX_VALUE;
-			/* Disable channel for sensor */
-			adc_disable(&AVR32_ADC, ADC_LIGHT_CHANNEL);
-
-			print_dbg("pot:");
-			print_dbg_ulong(pot_value);
-
-			//////////////////////////////////////
-
-			uint32_t light_value = 0;
-
-			/* enable channel for sensor */
-			adc_enable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
-			/* start conversion */
-			adc_start(&AVR32_ADC);
-			/* get value for sensor */
-			pot_value = adc_get_value(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL)
-					* 255 / ADC_MAX_VALUE;
-			/* Disable channel for sensor */
-			adc_disable(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL);
-
-			print_dbg("light:");
-			print_dbg_ulong(light_value);
-
-			//////////////////////////////////////
-
-			gpio_enable_pin_glitch_filter(GPIO_PUSH_BUTTON_0);
-			gpio_enable_pin_glitch_filter(GPIO_PUSH_BUTTON_1);
-			gpio_enable_pin_glitch_filter(GPIO_PUSH_BUTTON_2);
-			uint8_t btn0_status = gpio_get_pin_value(GPIO_PUSH_BUTTON_0);
-			uint8_t btn1_status = gpio_get_pin_value(GPIO_PUSH_BUTTON_1);
-			uint8_t btn2_status = gpio_get_pin_value(GPIO_PUSH_BUTTON_2);
-			if (btn0_status == GPIO_PUSH_BUTTON_0_PRESSED)
-				LED_On(LED1);
-			else
-				LED_Off(LED1);
-			if (btn1_status == GPIO_PUSH_BUTTON_1_PRESSED)
-				LED_On(LED2);
-			else
-				LED_Off(LED2);
-			if (btn2_status == GPIO_PUSH_BUTTON_2_PRESSED)
-				LED_On(LED3);
-			else
-				LED_Off(LED3);
-
-			print_dbg(" btn0:");
-			print_dbg_ulong(btn0_status == GPIO_PUSH_BUTTON_0_PRESSED);
-			print_dbg(" btn1:");
-			print_dbg_ulong(btn1_status == GPIO_PUSH_BUTTON_1_PRESSED);
-			print_dbg(" btn2:");
-			print_dbg_ulong(btn2_status == GPIO_PUSH_BUTTON_2_PRESSED);
-			print_dbg("\r\n");
-		}
-
-		// handle received char from console queue
-		int rx_char;
-		int status;
-		while (USART_SUCCESS == (status = usart_read_char(DBG_USART, &rx_char))) {
-			LED_Toggle(LED6);
-			print_dbg_char(rx_char); // echo back
-			static uint8_t pos = 6;
-
-			dip204_set_cursor_position(pos++, 4);
-			if (pos > 20) {
-				pos = 6;
-			}
-			dip204_write_data(rx_char);
-		}
-
-		// flush USART.
-		while (!usart_tx_empty(DBG_USART))
-			;
+		//
+		//////////////////////////////////
 	}
 
-	print_dbg("Goodbye.\r\n");
+	if ((now - task1_last_run_ms) > task1_period) {
+		task1_last_run_ms = (now / task1_period) * task1_period;
+
+		LED_Toggle(LED0);
+		print_dbg("pop ");
+		print_dbg("\r\n");
+	}
+
+	if ((now - task2_last_run_ms) > task2_period) {
+		task2_last_run_ms = (now / task2_period) * task2_period;
+
+		//////////////////////////////////////
+
+		adc_start(&AVR32_ADC);
+
+		uint32_t pot_value = 0;
+		pot_value = adc_get_value(&AVR32_ADC, ADC_POTENTIOMETER_CHANNEL)
+				* 255 / ADC_MAX_VALUE;
+
+		uint32_t light_value = 0;
+		light_value = adc_get_value(&AVR32_ADC, ADC_LIGHT_CHANNEL)
+				* 255 / ADC_MAX_VALUE;
+
+		print_dbg("pot:");
+		print_dbg_ulong(pot_value);
+		print_dbg(" light:");
+		print_dbg_ulong(light_value);
+
+		//////////////////////////////////////
+
+		uint8_t btn0_status = gpio_get_pin_value(GPIO_PUSH_BUTTON_0);
+		uint8_t btn1_status = gpio_get_pin_value(GPIO_PUSH_BUTTON_1);
+		uint8_t btn2_status = gpio_get_pin_value(GPIO_PUSH_BUTTON_2);
+		if (btn0_status == GPIO_PUSH_BUTTON_0_PRESSED)
+			LED_On(LED1);
+		else
+			LED_Off(LED1);
+		if (btn1_status == GPIO_PUSH_BUTTON_1_PRESSED)
+			LED_On(LED2);
+		else
+			LED_Off(LED2);
+		if (btn2_status == GPIO_PUSH_BUTTON_2_PRESSED)
+			LED_On(LED3);
+		else
+			LED_Off(LED3);
+
+		print_dbg(" btn0:");
+		print_dbg_ulong(btn0_status == GPIO_PUSH_BUTTON_0_PRESSED);
+		print_dbg(" btn1:");
+		print_dbg_ulong(btn1_status == GPIO_PUSH_BUTTON_1_PRESSED);
+		print_dbg(" btn2:");
+		print_dbg_ulong(btn2_status == GPIO_PUSH_BUTTON_2_PRESSED);
+		print_dbg("\r\n");
+	}
+
+	// flush USART.
+	while (!usart_tx_empty(DBG_USART))
+		;
 }
 
 int main(void) {
